@@ -19,34 +19,56 @@
     <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
     <script>
         var socket = io();
-        var channel = window.location.pathname;
+        var currentChannel = window.location.pathname;
+        var messages = [];
+
+        history.replaceState({channel: {path:currentChannel}}, "Chat", currentChannel);
+        window.onpopstate = function(event) {
+          currentChannel = event.state.channel.path;
+          showMessages();
+          //alert("location: " + document.location + ", state: " + JSON.stringify(event.state));
+        };
+
         $('form').submit(function() {
             var msg = {
                 text: $('#message').val(),
                 username: $('#username').val(),
-                channel: channel
+                channel: currentChannel
             }
             socket.emit('message', msg);
             $('#message').val('');
             return false;
         });
         socket.on('message', function(msg) { // Сообщение
+          messages.push(msg);
           showMessage(msg);
         });
         /// vvvv
         socket.on('messages', function(msgs) { // Сообщения ВСЕ
-          msgs.forEach(showMessage);
+          messages = msgs;
+          showMessages();
         });
 
         socket.on('channels', function(channels) { // Каналы
           channels.forEach(function(channel){
             var a = $('<a>').text(channel.name).attr('href', channel.path);
+            a.click(function(e){
+              e.preventDefault();
+              currentChannel = channel.path;
+              history.pushState({channel:channel}, channel.name, channel.path);
+              showMessages();
+            });
             $('#channels').append($('<li>').append(a));
           });
         });
 
+        function showMessages(){
+          $('#messages').empty();
+          messages.forEach(showMessage);
+        }
+
         function showMessage(msg){
-          if (msg.channel === channel){
+          if (msg.channel === currentChannel){
             $('#messages').append($('<li>').text(msg.text));
           }
         }
