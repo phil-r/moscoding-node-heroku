@@ -35,6 +35,8 @@ form button {
     color: #ecf0f1;
 }
 #messages {
+    width:80%;
+    float:left;
     list-style-type: none;
     margin: 0;
     padding: 0 0 46px 0;
@@ -44,5 +46,19 @@ form button {
     font-size: 16px;
 }
 #messages li:nth-child(odd) {
+    background: #bdc3c7;
+}
+#channels {
+    width:20%;
+    float:left;
+    list-style-type: none;
+    margin: 0;
+    padding: 0 0 46px 0;
+}
+#channels li {
+    padding: 5px 10px;
+    font-size: 16px;
+}
+#channels li:nth-child(even) {
     background: #bdc3c7;
 }

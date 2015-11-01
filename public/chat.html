@@ -9,6 +9,7 @@
 
 <body>
     <ul id="messages"></ul>
+    <ul id="channels"></ul>
     <form action="">
         <input type="text" id="username" placeholder="Your nickname">
         <input type="text" id="message" placeholder="Message text">
@@ -18,18 +19,37 @@
     <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
     <script>
         var socket = io();
+        var channel = window.location.pathname;
         $('form').submit(function() {
             var msg = {
                 text: $('#message').val(),
-                username: $('#username').val()
+                username: $('#username').val(),
+                channel: channel
             }
             socket.emit('message', msg);
             $('#message').val('');
             return false;
         });
-        socket.on('message', function(msg) {
-            $('#messages').append($('<li>').text(msg.text));
+        socket.on('message', function(msg) { // Сообщение
+          showMessage(msg);
         });
+        /// vvvv
+        socket.on('messages', function(msgs) { // Сообщения ВСЕ
+          msgs.forEach(showMessage);
+        });
+
+        socket.on('channels', function(channels) { // Каналы
+          channels.forEach(function(channel){
+            var a = $('<a>').text(channel.name).attr('href', channel.path);
+            $('#channels').append($('<li>').append(a));
+          });
+        });
+
+        function showMessage(msg){
+          if (msg.channel === channel){
+            $('#messages').append($('<li>').text(msg.text));
+          }
+        }
     </script>
 </body>
 
